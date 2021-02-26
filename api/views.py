@@ -1,3 +1,4 @@
+import re
 from django.db.models import manager
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -27,6 +28,30 @@ def task_list(request):
 
 @api_view(['GET'])
 def task_detail(request, pk):
-    tasks = Task.objects.get(id=pk)
-    serializer = TaskSerializer(tasks, many=False)
+    task = Task.objects.get(id=pk)
+    serializer = TaskSerializer(task, many=False)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+def task_create(request):
+    serializer = TaskSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def task_update(request, pk):
+    task = Task.objects.get(id=pk)
+    serializer = TaskSerializer(instance=task, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def task_delete(request, pk):
+    task = Task.objects.get(id=pk)
+    task.delete()
+    return Response('Task successfully deleted!')
